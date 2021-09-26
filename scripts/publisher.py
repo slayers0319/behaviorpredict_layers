@@ -23,16 +23,16 @@ def talker():
             pub.publish(data)
             break
         elif n==1:
-            data_x = random.uniform(-0.3,-0.28)
-            data_y = random.uniform(0.5,1.0)
-            for i in range(3):
+            data_x = random.uniform(-0.1,-0.9)
+            data_y = random.uniform(1.5,2)
+            for i in range(1):
                 rate.sleep()
                 name = "R"
                 data.data = name+","+str(data_x)+","+str(data_y)
                 rospy.loginfo(data)
                 pub.publish(data)
-                data_x = data_x+0.09
-                data_y = data_y-0.1
+                # data_x = data_x+0.09
+                # data_y = data_y-0.1
         elif n==2:
             for i in range(3):
                 rate.sleep()

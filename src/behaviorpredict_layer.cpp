@@ -12,6 +12,7 @@
 PLUGINLIB_EXPORT_CLASS(behaviorpredict_layer_namespace::BehaviorPredictLayer, costmap_2d::Layer)
 
 using costmap_2d::LETHAL_OBSTACLE;
+using costmap_2d::INSCRIBED_INFLATED_OBSTACLE;
 
 namespace behaviorpredict_layer_namespace{
 
@@ -107,17 +108,31 @@ void dataSplit(const std_msgs::String::ConstPtr& msg){
                 return;
             }
         }
-
+        //      p5      p4
+        //
+        //  p1
+        //
+        //      p2      p3
         //split_result=["R", "x1", "y1"]  data format
-
         PointDouble pt;
         double sx = std::strtod(split_result[1].c_str(),NULL); //convert string to double
-        pt.x = sx;
         double sy = std::strtod(split_result[2].c_str(),NULL); //convert string to double
+        sx=sx>0?sx+0.3:sx-0.3;
+        pt.x = sx;
         pt.y = sy;
-        related_points.push_back(pt);
-        pt.x = sx>0?-2.5:2.5;
-        related_points.push_back(pt);
+        related_points.push_back(pt);//p1
+        pt.x = sx*2/3;
+        pt.y = 0.8;
+        related_points.push_back(pt);//p2
+        pt.x = (-2)*sx;
+        pt.y = 0.8;
+        related_points.push_back(pt);//p3
+        pt.x = (-2)*sx;
+        pt.y = 2*sy-0.8;
+        related_points.push_back(pt);//p4
+        pt.x = sx*2/3;
+        pt.y = 2*sy-0.8;
+        related_points.push_back(pt);//p5
         //ROS_INFO("(%f,%f) (%f,%f)", related_points[0].x, related_points[0].y, related_points[1].x, related_points[1].y);
     }
 
@@ -241,7 +256,7 @@ void BehaviorPredictLayer::updateCosts(costmap_2d::Costmap2D& master_grid, int m
     
     //std::lock_guard<std::mutex> l(_data_mutex);
 
-    setPolygonCost(master_grid, absolute_points, LETHAL_OBSTACLE, min_i, min_j, max_i, max_j);
+    setPolygonCost(master_grid, absolute_points, INSCRIBED_INFLATED_OBSTACLE-1, min_i, min_j, max_i, max_j);
 }
 
 void BehaviorPredictLayer::setPolygonCost(costmap_2d::Costmap2D &master_grid, const std::vector<PointDouble>& polygon, unsigned char cost,
