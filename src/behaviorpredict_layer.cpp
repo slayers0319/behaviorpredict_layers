@@ -79,10 +79,25 @@ void dataSplit(const std_msgs::String::ConstPtr& msg){
     //split data
     split(buf,",",split_result);
 
+    if(split_result.empty() || (split_result.size()%3)!=0){
+        return;
+    }else{
+        //clear vector
+        std::vector<PointDouble> ().swap(related_points);
+        std::vector<PointDouble> ().swap(absolute_points);
+        PointDouble pt;
+        for (int i = 0; i < split_result.size()/3; i++){
+            pt.x = std::strtod(split_result[3*i+1].c_str(), NULL); //convert string to double
+            pt.y = std::strtod(split_result[3*i+2].c_str(), NULL); //convert string to double
+            related_points.push_back(pt);
+            //ROS_INFO("(%f,%f)",pt.x,pt.y);
+        }
+    }
 #if DEBUG
     ROS_INFO("split_result.size() = %d", (int)split_result.size());
 #endif
 
+    /*
     if(split_result.empty() || split_result.size()!=3){
 #if DEBUG
         ROS_INFO("not a point");
@@ -134,8 +149,10 @@ void dataSplit(const std_msgs::String::ConstPtr& msg){
         pt.y = 2*sy-0.8;
         related_points.push_back(pt);//p5
         //ROS_INFO("(%f,%f) (%f,%f)", related_points[0].x, related_points[0].y, related_points[1].x, related_points[1].y);
+        
     }
-
+*/
+    
     //calculate absolute coordinate
     for(int i=0;i<related_points.size();++i){
         double r =sqrt(pow(related_points[i].x,2)+pow(related_points[i].y,2));
@@ -212,7 +229,7 @@ void BehaviorPredictLayer::onInitialize(){
 #endif
 
     ros::NodeHandle ped_nh("behaviorpredict_data");
-    pedestrian_sub_ = ped_nh.subscribe<std_msgs::String>("/behavior" ,1000, dataSplit);
+    pedestrian_sub_ = ped_nh.subscribe<std_msgs::String>("/behaviorpredict" ,1000, dataSplit);
     ROS_INFO("behaviorpredict_data nodehandle");
     ros::NodeHandle nh("~/" + name_);
     current_ = true;
