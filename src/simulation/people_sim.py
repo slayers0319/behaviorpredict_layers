@@ -124,5 +124,4 @@ while not rospy.is_shutdown():
         pub_behavior.publish("clear")
 
     pub_marker(pedestrian)
-
     R.sleep()
