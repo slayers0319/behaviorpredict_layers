@@ -11,8 +11,8 @@ data_yaw = 0.0
 def talker():
     
     global name, data_x, data_y, data_yaw, data
-    pub = rospy.Publisher('behavior', String, queue_size=10)
     rospy.init_node('pedestrain_behavior', anonymous=True)
+    pub = rospy.Publisher('behavior', String, queue_size=10)
     rate = rospy.Rate(1) # 1hz
     while not rospy.is_shutdown():
         data = String()

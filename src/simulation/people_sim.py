@@ -43,12 +43,14 @@ def pub_people_detect(point, speed):
     data="P,"+str(-point.y)+","+str(point.x)+",V,"+str(-speed.y)+","+str(speed.x)
     rospy.loginfo(data)
     pub_behavior.publish(data)
-
+#y=tan(60)|x|
 def nearest(points):
     index = -1
     d = 10000000
     for i in range(len(points)):
         if points[i].x<0:
+            continue
+        if points[i].x<math.tan(math.pi/6)*abs(points[i].y):
             continue
 
         temp = points[i].x**2+points[i].y**2
@@ -65,7 +67,7 @@ def nearest(points):
 rospy.init_node('poeple_sim',anonymous=True)
 pub_point = rospy.Publisher('/marker', String, queue_size=1)
 pub_behavior = rospy.Publisher('/behavior', String, queue_size=1)
-R = rospy.Rate(6)
+R = rospy.Rate(12)
 
 #set pedestrian
 people_list = [person([-2,1.5], [-0.3,0]), person([-4.5,-0], [0.6,0]), person([-4.5,-1.5], [0.4,0])]
@@ -119,9 +121,9 @@ while not rospy.is_shutdown():
         # rospy.loginfo(PC_pose.points[i])
         # rospy.loginfo(PC_pose_foot.points[i])
         pub_people_detect(PC_pose_foot.points[index], PC_speed_foot.points[index])
-    else:
-        rospy.loginfo("clear")
-        pub_behavior.publish("clear")
+    # else:
+    #     rospy.loginfo("clear")
+    #     pub_behavior.publish("clear")
 
     pub_marker(pedestrian)
     R.sleep()

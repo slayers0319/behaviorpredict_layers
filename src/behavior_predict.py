@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import math
+import time
 import rospy
 from std_msgs.msg import String
 from nav_msgs.msg import Odometry
@@ -7,6 +8,8 @@ from geometry_msgs.msg import Point
 
 
 robot_speed = 0
+time_start = 0
+flag = 0
 
 def abs_vector(x, y):
     """
@@ -27,6 +30,10 @@ def rotate_vector(point, angle):
     return P
 
 def predict(data):
+    global time_start
+    global flag
+    flag = 1
+    time_start = time.time()
     if data.data=="clear":
         pub_point.publish("clear")
         return
@@ -71,76 +78,6 @@ def predict(data):
     else:
         return
 
-    
-    # label = result[0]
-    # pixel = float(result[1])
-    # deep = float(result[2])/100
-
-    # if label not in action_set:
-    #     pub_flag.publish(1) #finished
-    #     return
-    
-    # sleep = rospy.Rate(0.33)
-    # wait = rospy.Rate(2)
-    # if label=='w' or label=='W':
-    #     rospy.loginfo("wwwwwwww")
-
-    #     degree = (pixel/1920)*75
-    #     beta = abs((75/2)-degree)
-
-    #     if pixel>(1920/2):  #right (degree/180.0)*pi
-    #         related_goal_x = (deep-0.3)*math.sin((beta/180.0)*pi)
-    #         related_goal_y = (deep-0.3)*math.cos((beta/180.0)*pi)
-    #     else:   #left
-    #         related_goal_x = -(deep-0.3)*math.sin((beta/180.0)*pi)
-    #         related_goal_y = (deep-0.3)*math.cos((beta/180.0)*pi)
-
-    #     r = math.sqrt(math.pow(related_goal_x,2) + math.pow(related_goal_y,2))
-    #     theta = math.atan2(related_goal_y, related_goal_x) - (pi/2)
-
-    #     if ((theta + pi) <= 0):
-    #         theta = (theta + 2 * pi)
-        
-    #     goal_x = robot_pose[0] + math.cos(theta + robot_pose[2])*r
-    #     goal_y = robot_pose[1] + math.sin(theta + robot_pose[2])*r
-        
-    #     angle_to_goal = (theta + robot_pose[2])*180/pi
-
-    #     back_pose = [robot_pose[0], robot_pose[1], robot_pose[2]*180/pi]
-    #     nav.goto([goal_x, goal_y, angle_to_goal])
-
-    # elif label=='a' or label=='A':    #rurn left
-    #     rospy.loginfo("turn left")
-    #     speed = Twist()
-    #     speed.linear.x = 0
-    #     speed.linear.y = 0
-    #     speed.linear.z = 0
-    #     speed.angular.x = 0
-    #     speed.angular.y = 0
-    #     speed.angular.z = -pi/6  #180/6=30 degree/sec
-    #     pub_v.publish(speed)
-    #     sleep.sleep()
-    #     speed.angular.z = 0
-    #     pub_v.publish(speed)
-    # elif label=='d' or label=='D':    #rurn right
-    #     rospy.loginfo("turn right")
-    #     speed = Twist()
-    #     speed.linear.x = 0
-    #     speed.linear.y = 0
-    #     speed.linear.z = 0
-    #     speed.angular.x = 0
-    #     speed.angular.y = 0
-    #     speed.angular.z = pi/6  #180/6=30 degree/sec
-    #     pub_v.publish(speed)
-    #     sleep.sleep()
-    #     speed.angular.z = 0
-    #     pub_v.publish(speed)
-    # elif label=='b' or label=='B':
-    #     nav = navigation_demo()
-    #     nav.goto(back_pose)
-
-    # pub_flag.publish(1)
-
 def getRobotSpeed(data):
     global robot_speed
 
@@ -148,13 +85,17 @@ def getRobotSpeed(data):
     robot_speed = round(robot_speed, 3)
     # rospy.loginfo(robot_speed)
 
-
 rospy.init_node('behavior_predict',anonymous=True)
 rospy.Subscriber('/behavior', String, predict, queue_size=1)
 rospy.Subscriber('/odom', Odometry, getRobotSpeed, queue_size=1)
 pub_point = rospy.Publisher('/behaviorpredict', String, queue_size=1)
 
-r = rospy.Rate(1)
+r = rospy.Rate(4)
 
 while not rospy.is_shutdown():
+    time_interval = time.time()-time_start
+    if time_interval>=1.5 and flag==1:
+        flag = 0
+        rospy.loginfo("claer")
+        pub_point.publish("clear")
     r.sleep()

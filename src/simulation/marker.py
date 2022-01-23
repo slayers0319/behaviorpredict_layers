@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import rospy
+import math
 from visualization_msgs.msg import Marker, MarkerArray
 from geometry_msgs.msg import Point
 from std_msgs.msg import String
@@ -20,14 +21,14 @@ class rviz_maker():
         point_list = [[data_lsit[i*4],data_lsit[i*4+1],data_lsit[i*4+2],data_lsit[i*4+3]]for i in range(0,len(data_lsit)/4)]
         #marker array
         self.markerarray.markers = []
-
+        
         for i,point in enumerate(point_list):
             #point setting
             marker_point = Marker()
             marker_point.header.frame_id = '/map'
             marker_point.header.stamp = rospy.get_rostime()
             marker_point.ns = 'points_texts'
-            marker_point.id = i*2
+            marker_point.id = i
             marker_point.type = Marker.CYLINDER
             marker_point.action = Marker.ADD
             marker_point.lifetime = rospy.Duration()
@@ -46,31 +47,21 @@ class rviz_maker():
             marker_point.pose.position.z = 0
             self.markerarray.markers.append(marker_point)
 
-            # #marker text setting
-            # marker_text = Marker()
-            # marker_text.header.frame_id = '/map'
-            # marker_text.header.stamp = rospy.get_rostime()
-            # marker_text.ns = 'points_texts'
-            # marker_text.id = i*2+1
-            # marker_text.type=Marker.TEXT_VIEW_FACING
-            # marker_text.action=Marker.ADD
-            # marker_text.lifetime = rospy.Duration(2)
-            # marker_text.scale.z = font_size
-            # marker_text.color.a = 1.0
-            # if point[3]=='R':
-            #     marker_text.color.r = 1.0
-            # elif point[3]=='G':
-            #     marker_text.color.g = 1.0
-            # elif point[3]=='B':
-            #     marker_text.color.b = 1.0
-            # marker_text.pose.position.x = float(point[2]) + point_text_spacing
-            # marker_text.pose.position.y = -float(point[1])
-            # marker_text.pose.orientation.w = 0
-            # marker_text.text = point[0]
-            # self.markerarray.markers.append(marker_text)
+        marker_line = Marker()
+        marker_line.header.frame_id = '/base_footprint'
+        marker_line.header.stamp = rospy.get_rostime()
+        marker_line.ns = 'points_texts'
+        marker_line.id = i*2
+        marker_line.type = Marker.LINE_STRIP
+        marker_line.action = Marker.ADD
+        marker_line.lifetime = rospy.Duration()
+        marker_line.scale.x = 0.05
+        marker_line.color.a = 1.0
+        marker_line.color.g = 1.0
+        marker_line.points.extend([Point(0.5,0.5/math.tan(math.pi/6),0),Point(0,0,0),Point(0.5,-0.5/math.tan(math.pi/6),0)])
+        self.markerarray.markers.append(marker_line)
 
         self.pub.publish(self.markerarray)
-        print("-----------------")
         
 
 def main():
