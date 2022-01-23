@@ -47,6 +47,7 @@ def predict(data):
     global last_point_map
     flag = 1
     time_start = time.time()
+    # rospy.loginfo(data)
     if data.data=="clear":
         pub_point.publish("clear")
         return
@@ -107,7 +108,9 @@ def predict(data):
             result=result+"Point,"+str(i.x)+","+str(i.y)+","
         result = result[:-1]
 
+        rospy.loginfo(result)
         pub_point.publish(result)
+
 
 def getRobotSpeed(data):
     global robot_speed
@@ -140,7 +143,7 @@ last_point_stamped.header.stamp = rospy.Time(0)
 last_point_stamped.point = Point(0, 0, 0)
 
 r = rospy.Rate(4)
-
+print("start")
 pub_point.publish("clear")
 while not rospy.is_shutdown():
     # time clear

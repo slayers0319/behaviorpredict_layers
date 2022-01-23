@@ -43,7 +43,7 @@ def repro_sample(data):
 
     output = "{},{},{},V,{},{}".format(people_list[i*3],people[0],people[1],speed,0)
     print(output)
-    # pub_point.publish(output)
+    pub_point.publish(output)
 
 
 rospy.init_node('data_combine',anonymous=True)
