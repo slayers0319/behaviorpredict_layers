@@ -49,7 +49,7 @@ def repro_sample(data):
 rospy.init_node('data_combine',anonymous=True)
 rospy.Subscriber("/reprojection", my_msg5, repro_sample, queue_size=1)
 
-pub_point = rospy.Publisher('/behaviorpredict', String, queue_size=1)
+pub_point = rospy.Publisher('/behavior', String, queue_size=1)
 
 r = rospy.Rate(10)
 print("start")
