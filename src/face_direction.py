@@ -36,7 +36,7 @@ def repro_sample(data):
     if len(people)==0: # poeple is empty
         return
 
-    if people_list[i*3]=="personL":
+    if people_list[arg_nearest*3]=="personL":
         speed = -0.5
     else:
         speed = 0.5
