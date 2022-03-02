@@ -6,6 +6,7 @@ import string
 import rospy
 from std_msgs.msg import String
 import message_filters
+from geometry_msgs.msg import Point
 from behaviorpredict_layers.msg import BoundingBox
 from behaviorpredict_layers.msg import BoundingBoxes
 from sensor_msgs.msg import LaserScan
@@ -21,6 +22,7 @@ WIDTH=640
 ANGLE_OF_VIEW=78
 global last_bbx
 last_bbx = BoundingBox()
+last_point = Point(0,0,0)
 # def get_BBX(data):
 #     #print(data.bounding_boxes)
 #     pass
@@ -60,6 +62,7 @@ def combine_data(bbx, scan):
     global last_bbx
     global degree_map
     global pub_marker
+    global last_point
 
     if last_bbx==bbx.bounding_boxes:
         return
@@ -67,33 +70,45 @@ def combine_data(bbx, scan):
     degree_increment = scan.angle_increment*180/math.pi # degree increment per laser
     # print(round(10/degree_increment))
     # degree mapping
-    print(bbx.bounding_boxes[0].xmin+bbx.bounding_boxes[0].xmax)/2
+    # print(bbx.bounding_boxes[0].xmin+bbx.bounding_boxes[0].xmax)/2
     degree = (ANGLE_OF_VIEW/2)-((bbx.bounding_boxes[0].xmin+bbx.bounding_boxes[0].xmax)*ANGLE_OF_VIEW)/(2.0*WIDTH)
     if abs(degree)>39:
         return
-    print(degree)
+    # print(degree)
     degree = round(degree)
-    print(degree)
+    # print(degree)
     # print(degree_map[int(degree)])
     degree = degree_map[int(degree)] if degree>0 else -degree_map[int((-1)*degree)]
-    print("deg =",degree)
+    # print("deg =",degree)
     N = int(degree/(scan.angle_increment*180/math.pi))-int(scan.angle_min/scan.angle_increment)
-    print("degree N =",scan.ranges[N])
-    scan_arr = np.array(scan.ranges[N-int(round(5/degree_increment)):N+int(round(5/degree_increment))])
+    # print("degree N =",scan.ranges[N])
+    scan_arr = np.array(scan.ranges[N-int(round(8/degree_increment)):N+int(round(8/degree_increment))])
     scan_arr = scan_arr[scan_arr!=np.inf]
     if len(scan_arr)==0:
         return
-    print(scan_arr)
+    # print(scan_arr)
     print("mid =",scan_arr.min())
     mid = scan_arr.min()
-    print(degree)
-    x = mid*math.sin(degree*math.pi/180)
+    # print(degree)
+    x = -mid*math.sin(degree*math.pi/180)
     y = mid*math.cos(degree*math.pi/180)
-    print(x,y)
+    # print(x,y)
 
-    output = "P,{},{},R".format(-x,y)
-    print(output)
+    if last_point.x==0 and last_point.y==0:
+        last_point = Point(x,y,0)
+    
+    direct = x - last_point.x
+    if direct<0: # R to L
+        V = -0.5
+    else: # L to R
+        V = 0.5
+
+    output = "P,{},{},B".format(x,y)
+    # print(output)
     pub_marker.publish(output)
+    result = "P,{},{},V,{},0".format(x,y,V)
+    print(result)
+    pub_point.publish(result)
     # N=int(((180.0+degree)/360.0)*len(scan.ranges)) # N=0 degree
     # print(N)
     # scan_arr = np.array(scan.ranges[N-15:N+15]) #222<N~N+25<334
@@ -115,6 +130,7 @@ def combine_data(bbx, scan):
     # print(x_)
     # print((((scan_arr.argmin()+N)*360)/len(scan.ranges))-180)
     '''
+    last_point = Point(x,y,0)
     last_bbx = bbx.bounding_boxes
 
 
@@ -127,6 +143,7 @@ scan = message_filters.Subscriber('scan', LaserScan, queue_size=1)
 ts = message_filters.ApproximateTimeSynchronizer([bbx, scan], 10, 0.1) # allow_headerless=True
 ts.registerCallback(combine_data)
 pub_marker = rospy.Publisher("fusion_data", String, queue_size=10)
+pub_point = rospy.Publisher('/behavior', String, queue_size=1)
 
 
 r = rospy.Rate(10)
