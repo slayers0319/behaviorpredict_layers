@@ -58,7 +58,7 @@ def predict(data):
 
     # point_list.append(Point(point_list[-1].x+V_scale.x, point_list[-1].y+V_scale.y, 0))
     # point_list.append(Point(point_list[0].x+V_scale.x, point_list[0].y+V_scale.y, 0))
-    temp = -point_list[2].x*1.2
+    temp = -point_list[2].x*1.5
     if temp**2<1.5**2:
         temp = temp*1.5/abs(temp)
     
