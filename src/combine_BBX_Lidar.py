@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from audioop import add
 from copy import deepcopy
+from dis import dis
 import math
 import string
 import rospy
@@ -23,23 +24,24 @@ ANGLE_OF_VIEW=78
 global last_bbx
 last_bbx = BoundingBox()
 last_point = Point(0,0,0)
+class_list = ["personR", "personL", "personF", "personB"]
+
 # def get_BBX(data):
 #     #print(data.bounding_boxes)
 #     pass
 
+def get_BBX(data):
+    print("*************************")
+    # print(data.bounding_boxes)
+    for b in data.bounding_boxes:
+        print(b.Class)
+        print(b.xmin)
+        print(b.ymin)
+        print(b.xmax)
+        print(b.ymax)
+        print("---")
+    
 def get_scan(data):
-    # N=int(((180.0-90)/360.0)*len(data.ranges)) # N=0 degree
-    # print(data.angle_min+data.angle_increment*286)
-    # N = int(0/(data.angle_increment*180/math.pi))-int(data.angle_min/data.angle_increment)
-    # N = -int(data.angle_min/data.angle_increment)
-    # print(N)
-    # print(data.ranges[N-5:N+5])
-    # scan_arr = np.array(data.ranges[N-5:N+5])
-    # scan_arr = scan_arr[scan_arr!=np.inf]
-    # print(scan_arr)
-    # print(data.angle_increment*180/math.pi)
-    # print(len(data.ranges))
-    # print(int(round((180.0/360)*len(data.ranges))))
     global WIDTH
     global last_bbx
     global degree_map
@@ -63,69 +65,84 @@ def combine_data(bbx, scan):
     global degree_map
     global pub_marker
     global last_point
-
+    global class_list
+    
     if last_bbx==bbx.bounding_boxes:
         return
-    print("="*10)
-    degree_increment = scan.angle_increment*180/math.pi # degree increment per laser
-    # print(round(10/degree_increment))
-    # degree mapping
-    # print(bbx.bounding_boxes[0].xmin+bbx.bounding_boxes[0].xmax)/2
-    degree = (ANGLE_OF_VIEW/2)-((bbx.bounding_boxes[0].xmin+bbx.bounding_boxes[0].xmax)*ANGLE_OF_VIEW)/(2.0*WIDTH)
-    if abs(degree)>39:
-        return
-    # print(degree)
-    degree = round(degree)
-    # print(degree)
-    # print(degree_map[int(degree)])
-    degree = degree_map[int(degree)] if degree>0 else -degree_map[int((-1)*degree)]
-    # print("deg =",degree)
-    N = int(degree/(scan.angle_increment*180/math.pi))-int(scan.angle_min/scan.angle_increment)
-    # print("degree N =",scan.ranges[N])
-    scan_arr = np.array(scan.ranges[N-int(round(8/degree_increment)):N+int(round(8/degree_increment))])
-    scan_arr = scan_arr[scan_arr!=np.inf]
-    if len(scan_arr)==0:
-        return
-    # print(scan_arr)
-    print("mid =",scan_arr.min())
-    mid = scan_arr.min()
-    # print(degree)
-    x = -mid*math.sin(degree*math.pi/180)
-    y = mid*math.cos(degree*math.pi/180)
-    # print(x,y)
-
-    if last_point.x==0 and last_point.y==0:
-        last_point = Point(x,y,0)
     
-    direct = x - last_point.x
-    if direct<-0.2: # R to L
-        V = -0.5
-        last_point = Point(x,y,0)
-    elif direct>0.2: # L to R
-        V = 0.5
-        last_point = Point(x,y,0)
-    else:
-        V = 0
+    output = ""
+    result = ""
+    min_d = 10000
+    for b in bbx.bounding_boxes:
+        if b.Class not in class_list:
+            continue
 
-    output = "P,{},{},B".format(x,y)
-    # print(output)
-    pub_marker.publish(output)
-    result = "P,{},{},V,{},0".format(x,y,V)
+        degree_increment = scan.angle_increment*180/math.pi # degree increment per laser
+        # degree mapping
+        degree = (ANGLE_OF_VIEW/2)-((b.xmin+b.xmax)*ANGLE_OF_VIEW)/(2.0*WIDTH)
+        if abs(degree)>39:
+            return
+
+        degree = round(degree)
+        
+        degree = degree_map[int(degree)] if degree>0 else -degree_map[int((-1)*degree)]
+    
+        N = int(degree/(scan.angle_increment*180/math.pi))-int(scan.angle_min/scan.angle_increment)
+    
+        scan_arr = np.array(scan.ranges[N-int(round(8/degree_increment)):N+int(round(8/degree_increment))])
+        scan_arr = scan_arr[scan_arr!=np.inf]
+
+        if len(scan_arr)==0:
+            print("inf")
+            continue
+    
+        distance = scan_arr.min()
+    
+        x = -distance*math.sin(degree*math.pi/180)
+        y = distance*math.cos(degree*math.pi/180)
+
+        if b.Class=="personR":
+            V = 0.5
+        elif b.Class=="personL":
+            V = -0.5
+        else:
+            V = 0
+
+        output = output + "P,{},{},B,".format(x,y)
+
+        if distance < min_d:
+            result = "P,{},{},V,{},0".format(x,y,V)
+            min_d = distance
+
+    last_bbx = bbx.bounding_boxes
+
+    if result=="" and output=="":
+        return
+
+    print("="*10)
+    
+    print(output)
+    pub_marker.publish(output[:-1])
+
+    if result=="":
+        return
     print(result)
     pub_point.publish(result)
 
     
-    last_bbx = bbx.bounding_boxes
+    
 
 
 
 rospy.init_node('combine_BBX_Lidar',anonymous=True)
-# rospy.Subscriber('darknet_ros/bounding_boxes', BoundingBoxes, get_BBX, queue_size=1)
+# rospy.Subscriber('darknet_ros/bounding_boxes1', BoundingBoxes, get_BBX, queue_size=1)
 # rospy.Subscriber('scan', LaserScan, get_scan, queue_size=1)
-bbx = message_filters.Subscriber('darknet_ros/bounding_boxes', BoundingBoxes, queue_size=1)
+
+bbx = message_filters.Subscriber('darknet_ros/bounding_boxes1', BoundingBoxes, queue_size=1)
 scan = message_filters.Subscriber('scan', LaserScan, queue_size=1)
 ts = message_filters.ApproximateTimeSynchronizer([bbx, scan], 10, 0.1) # allow_headerless=True
 ts.registerCallback(combine_data)
+
 pub_marker = rospy.Publisher("fusion_data", String, queue_size=10)
 pub_point = rospy.Publisher('/behavior', String, queue_size=1)
 
