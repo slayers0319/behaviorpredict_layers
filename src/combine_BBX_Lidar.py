@@ -98,10 +98,14 @@ def combine_data(bbx, scan):
         last_point = Point(x,y,0)
     
     direct = x - last_point.x
-    if direct<0: # R to L
+    if direct<-0.2: # R to L
         V = -0.5
-    else: # L to R
+        last_point = Point(x,y,0)
+    elif direct>0.2: # L to R
         V = 0.5
+        last_point = Point(x,y,0)
+    else:
+        V = 0
 
     output = "P,{},{},B".format(x,y)
     # print(output)
@@ -109,28 +113,8 @@ def combine_data(bbx, scan):
     result = "P,{},{},V,{},0".format(x,y,V)
     print(result)
     pub_point.publish(result)
-    # N=int(((180.0+degree)/360.0)*len(scan.ranges)) # N=0 degree
-    # print(N)
-    # scan_arr = np.array(scan.ranges[N-15:N+15]) #222<N~N+25<334
-    # print(scan_arr)
-    # scan_arr = scan_arr[scan_arr!=np.inf]
-    ''''
-    # print(scan_arr)
-    # min_scan = scan_arr[np.argpartition(scan_arr,int(len(scan_arr)/2))[:int(len(scan_arr)/2)]]
-    # print(min_scan)
-    # print(scan_arr.min())
-    r = scan_arr.min()
-    # d = (((scan_arr.argmin()+N)*360)/len(scan.ranges))-180
-    d = (scan_arr.argmin()*360/len(scan.ranges))-180
-    # x_ = r*math.sin(d*math.pi/180)
-    x = r*math.sin(degree*math.pi/180)
-    y = r*math.cos(degree*math.pi/180)
-    print(x*0.8)
-    print(y)
-    # print(x_)
-    # print((((scan_arr.argmin()+N)*360)/len(scan.ranges))-180)
-    '''
-    last_point = Point(x,y,0)
+
+    
     last_bbx = bbx.bounding_boxes
 
 

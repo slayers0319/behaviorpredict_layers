@@ -42,7 +42,7 @@ def predict(data):
     splited = data.data.split(',')
     data_dic['P'] = Point(float(splited[1]),float(splited[2]),0)   #point of person
     data_dic['V'] = Point(float(splited[4]),float(splited[5]),0)   #velocity vector for person
-    if (data_dic['P'].x*data_dic['V'].x)>0:
+    if (data_dic['P'].x*data_dic['V'].x)>=0:
         return
     
     #---------------------------------
