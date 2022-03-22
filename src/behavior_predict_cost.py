@@ -3,7 +3,6 @@ import math
 import time
 import rospy
 from std_msgs.msg import String
-from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
 
 

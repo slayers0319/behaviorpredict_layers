@@ -11,7 +11,8 @@ global_costmap:
   plugins:
     - {name: static,             type: "costmap_2d::StaticLayer"}
     - {name: obstacles,         type: "costmap_2d::VoxelLayer"}
-    - {name: fusion_layer,  type: "fusion_layer_namespace::FusionLayer"}
+    - {name: behaviorpredict_layer,  type: "behaviorpredict_layer_namespace::BehaviorPredictLayer"}
     - {name: inflation_layer,   type: "costmap_2d::InflationLayer"}
-
+    - {name: fusion_layer,  type: "fusion_layer_namespace::FusionLayer"}
+#    - {name: behavior_layer,  type: "behavior_layer_namespace::BehaviorLayer"}
 #    - {name: costmap_prohibition_layer,    type: "costmap_prohibition_layer_namespace::CostmapProhibitionLayer"}
