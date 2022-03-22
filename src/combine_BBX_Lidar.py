@@ -108,7 +108,7 @@ def combine_data(bbx, scan):
         else:
             V = 0
 
-        output = output + "P,{},{},B,".format(x,y)
+        output = output + "{},{},{},B,".format(b.Class,x,y)
 
         if distance < min_d:
             result = "P,{},{},V,{},0".format(x,y,V)
