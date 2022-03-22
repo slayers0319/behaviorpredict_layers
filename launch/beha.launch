@@ -7,6 +7,6 @@
   <node pkg="behaviorpredict_layers" type="fusion_marker.py" name="pub_marker_array"/>
 
   <!-- combine BBX and Lidar -->
-  <node pkg="behaviorpredict_layers" type="combine_BBX_Lidar.py" name="combine_BBX_Lidar"/>
+  <node pkg="behaviorpredict_layers" type="combine_BBX_Lidar.py" name="combine_BBX_Lidar" output="screen"/>
 
 </launch>
