@@ -31,8 +31,8 @@ def actionnnn(data):
     last=data.data
 
 rospy.init_node('stop_go',anonymous=True)
-# rospy.Subscriber('/back', String, action)
-rospy.Subscriber('/back', String, actionnnn)
+rospy.Subscriber('/back', String, action)
+# rospy.Subscriber('/back', String, actionnnn)
 pub_go = rospy.Publisher('action_go', String, queue_size=5)
 pub_stop = rospy.Publisher('action_stop', String, queue_size=5)
 
