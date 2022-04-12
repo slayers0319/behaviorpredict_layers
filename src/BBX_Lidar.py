@@ -83,7 +83,7 @@ def combine_data(bbx, scan):
         # degree = degree_map[degree]
         # degree = degree -7
         # print(degree)
-        degree = degree + ((39-degree)*7)/39
+        degree = degree + ((39-degree)*9)/39
         # print(degree)
         # if degree<=35:
         #     print("######")
