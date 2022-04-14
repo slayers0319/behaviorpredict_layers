@@ -11,8 +11,6 @@ import numpy as np
 
 class Lidar_BBX_asyn:
     def __init__(self):
-        rospy.init_node('combine_BBX_Lidar',anonymous=True) #node initial
-
         # publisher setting
         self.pub_marker = rospy.Publisher("fusion_data", String, queue_size=1)
         self.pub_point = rospy.Publisher('/behavior', String, queue_size=1)
@@ -90,8 +88,10 @@ class Lidar_BBX_asyn:
         print(result)
         self.pub_point.publish(result)
 
+rospy.init_node('combine_BBX_Lidar',anonymous=True) #node initial
 r = rospy.Rate(10)
 r.sleep()
 print("start")
+Lidar_BBX = Lidar_BBX_asyn()
 while not rospy.is_shutdown():
     r.sleep()
