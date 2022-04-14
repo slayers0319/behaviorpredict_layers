@@ -21,7 +21,6 @@ degree_map={78:78, 77:77.27, 76:76.54, 75:75.78, 74:75.01, 73:74.22, 72:73.42, 7
 
 WIDTH=640.0
 ANGLE_OF_VIEW=78.0
-global last_bbx
 last_bbx = BoundingBox()
 last_point = Point(0,0,0)
 class_list = ["personR", "personL", "personF", "personB"]
