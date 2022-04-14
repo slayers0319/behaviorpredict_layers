@@ -30,7 +30,7 @@ class rviz_maker():
             marker_point.id = i*2
             marker_point.type = Marker.CYLINDER
             marker_point.action = Marker.ADD
-            marker_point.lifetime = rospy.Duration(2)
+            marker_point.lifetime = rospy.Duration(0.5)
             marker_point.scale.x = 0.2
             marker_point.scale.y = 0.2
             marker_point.scale.z = 0.2
