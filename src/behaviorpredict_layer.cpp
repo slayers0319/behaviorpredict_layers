@@ -273,7 +273,7 @@ void BehaviorPredictLayer::updateCosts(costmap_2d::Costmap2D& master_grid, int m
     
     //std::lock_guard<std::mutex> l(_data_mutex);
 
-    setPolygonCost(master_grid, absolute_points, INSCRIBED_INFLATED_OBSTACLE-1, min_i, min_j, max_i, max_j);
+    setPolygonCost(master_grid, absolute_points, INSCRIBED_INFLATED_OBSTACLE-100, min_i, min_j, max_i, max_j);
 }
 
 void BehaviorPredictLayer::setPolygonCost(costmap_2d::Costmap2D &master_grid, const std::vector<PointDouble>& polygon, unsigned char cost,

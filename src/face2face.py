@@ -55,7 +55,7 @@ pub_point = rospy.Publisher('/face2face_point', String, queue_size=1)
 r = rospy.Rate(10)
 print("start")
 while not rospy.is_shutdown():
-    if (time.time()-Timer)>10 and flag==1:
+    if (time.time()-Timer)>16 and flag==1:
         flag = 0
         pub_point.publish("clear")
     r.sleep()

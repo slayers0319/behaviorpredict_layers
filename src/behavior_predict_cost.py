@@ -43,11 +43,18 @@ def predict(data):
     data_dic['V'] = Point(float(splited[4]),float(splited[5]),0)   #velocity vector for person
     if (data_dic['P'].x*data_dic['V'].x)>=0:
         return
-    
+    '''
+    if abs(data_dic['P'].x)<0.6:
+        if data_dic['P'].x<0:
+            data_dic['P'].x = -0.6
+        else:
+            data_dic['P'].x = 0.6
+    '''
     #---------------------------------
     V_scale = normalize_vector(data_dic['V'])
     V_N = Point(-data_dic['V'].y,data_dic['V'].x,0)
-    V_N = scale(0.375, normalize_vector(V_N))
+    #V_N = scale(0.375, normalize_vector(V_N))
+    V_N = scale(0.25, normalize_vector(V_N))
     point_list=[]
     point_list.append(Point(V_N.x+data_dic['P'].x, V_N.y+data_dic['P'].y, 0))
     #result = result+",Point,"+str(V_N.x+V_scale.x)+","+str(V_N.y+y_cross+V_scale.y)
@@ -57,9 +64,9 @@ def predict(data):
 
     # point_list.append(Point(point_list[-1].x+V_scale.x, point_list[-1].y+V_scale.y, 0))
     # point_list.append(Point(point_list[0].x+V_scale.x, point_list[0].y+V_scale.y, 0))
-    temp = -point_list[2].x*2
+    temp = -point_list[2].x*2.5
     if temp**2<1.5**2:
-        temp = temp*1.5/abs(temp)
+        temp = temp*2/abs(temp)
     
 
     point_list.append(Point(temp, point_list[-1].y, 0))
@@ -81,7 +88,7 @@ r = rospy.Rate(4)
 
 while not rospy.is_shutdown():
     time_interval = time.time()-time_start
-    if time_interval>=1.5 and flag==1:
+    if time_interval>=5 and flag==1:
         flag = 0
         rospy.loginfo("claer")
         pub_point.publish("clear")
