@@ -9,6 +9,8 @@ from geometry_msgs.msg import Point
 robot_speed = 0
 time_start = 0
 flag = 0
+last_class = "NONE"
+keep_counter = 0
 
 def abs_vector(x, y):
     """
@@ -31,6 +33,9 @@ def rotate_vector(point, angle):
 def predict(data):
     global time_start
     global flag
+    global last_class
+    global keep_counter
+
     flag = 1
     time_start = time.time()
     if data.data=="clear":
@@ -41,8 +46,13 @@ def predict(data):
     splited = data.data.split(',')
     data_dic['P'] = Point(float(splited[1]),float(splited[2]),0)   #point of person
     data_dic['V'] = Point(float(splited[4]),float(splited[5]),0)   #velocity vector for person
+
+    if (data_dic['P'].y>5 or data_dic['P'].y<1):
+        return
+    
     if (data_dic['P'].x*data_dic['V'].x)>=0:
         return
+    
     '''
     if abs(data_dic['P'].x)<0.6:
         if data_dic['P'].x<0:
@@ -50,6 +60,17 @@ def predict(data):
         else:
             data_dic['P'].x = 0.6
     '''
+    # Keep
+    if splited[0]==last_class:
+        last_class = splited[0]
+        keep_counter = keep_counter + 1
+    else:
+        last_class = splited[0]
+        keep_counter = 0
+        return
+    if keep_counter<5:
+        return
+    last_class = splited[0]
     #---------------------------------
     V_scale = normalize_vector(data_dic['V'])
     V_N = Point(-data_dic['V'].y,data_dic['V'].x,0)
@@ -88,7 +109,7 @@ r = rospy.Rate(4)
 
 while not rospy.is_shutdown():
     time_interval = time.time()-time_start
-    if time_interval>=5 and flag==1:
+    if time_interval>=7 and flag==1:
         flag = 0
         rospy.loginfo("claer")
         pub_point.publish("clear")

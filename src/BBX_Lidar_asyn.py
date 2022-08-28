@@ -40,7 +40,10 @@ class Lidar_BBX_asyn:
         for b in bbx.bounding_boxes:
             if b.Class not in self.class_list:
                 continue
-
+            print("p",b.probability)
+            if b.probability<0.8:
+                print(b.probability)
+                continue
             x_mid = (b.xmin+b.xmax)/2
             degree = int(round(self.ANGLE_OF_VIEW*((self.WIDTH-x_mid)/self.WIDTH)))
             degree = degree + ((39-degree)*9)/39
@@ -70,7 +73,7 @@ class Lidar_BBX_asyn:
             output = output + "{},{},{},B,".format(b.Class,x,y)
 
             if distance < min_d:
-                result = "P,{},{},V,{},0".format(x,y,V)
+                result = "{},{},{},V,{},0".format(b.Class,x,y,V)
                 min_d = distance
 
         self.last_bbx = bbx.bounding_boxes

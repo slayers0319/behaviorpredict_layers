@@ -1,12 +1,14 @@
 <launch>
 
   <!-- pub cost area -->
-  <node pkg="behaviorpredict_layers" type="behavior_predict_cost.py" name="pub_cost_area"/>
+  <!-- <node pkg="behaviorpredict_layers" type="behavior_predict_cost.py" name="pub_cost_area"/> -->
   
   <!-- pub marker array -->
   <node pkg="behaviorpredict_layers" type="fusion_marker.py" name="pub_marker_array"/>
 
   <!-- combine BBX and Lidar -->
-  <node pkg="behaviorpredict_layers" type="combine_BBX_Lidar.py" name="BBX_Lidar" output="screen"/>
+  <node pkg="behaviorpredict_layers" type="BBX_Lidar_asyn.py" name="BBX_Lidar_asyn" output="screen"/>
 
+  <!-- face 2 face -->
+  <node pkg="behaviorpredict_layers" type="face2face.py" name="face2face" output="screen"/>
 </launch>
